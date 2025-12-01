@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "IBAPI\\IBAPI.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "IBAPI.ExecuteMilestone\\IBAPI.ExecuteMilestone.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
