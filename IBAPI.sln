@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IBAPI.ExecuteMilestone", "IBAPI.ExecuteMilestone\IBAPI.ExecuteMilestone.csproj", "{12A13CEE-1B42-49FB-BEE0-4A532F3A0D6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IBAPI.MetadataMilestone", "IBAPI.MetadataMilestone\IBAPI.MetadataMilestone.csproj", "{443252F4-967C-4AF6-86CF-6DF4711571E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{12A13CEE-1B42-49FB-BEE0-4A532F3A0D6D}.x64|Any CPU.Build.0 = Debug|Any CPU
 		{12A13CEE-1B42-49FB-BEE0-4A532F3A0D6D}.x64|x64.ActiveCfg = Debug|Any CPU
 		{12A13CEE-1B42-49FB-BEE0-4A532F3A0D6D}.x64|x64.Build.0 = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Debug|x64.Build.0 = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Release|x64.ActiveCfg = Release|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.Release|x64.Build.0 = Release|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.x64|Any CPU.ActiveCfg = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.x64|Any CPU.Build.0 = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.x64|x64.ActiveCfg = Debug|Any CPU
+		{443252F4-967C-4AF6-86CF-6DF4711571E0}.x64|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
