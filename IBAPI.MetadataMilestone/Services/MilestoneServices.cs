@@ -1,6 +1,8 @@
 ﻿using IBAPI.ExecuteMilestone.Model;
 using IBAPI.MetadataMilestone.Model;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -9,6 +11,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoOS.Platform;
@@ -25,12 +28,9 @@ public static class MilestoneServices
     private const string Version = "1.0";
     private const string ManufacturerName = "Sample Manufacturer";
     private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    private static MetadataLiveSource _metadataLiveSource;
-    private static Item _selectItem1;
 
     private static readonly object _loginLock = new object();
     private static bool _isInitialized;
-    private static readonly object _metadataLock = new object();
     private static readonly HttpClient _httpClient =
         new HttpClient(new HttpClientHandler
         {
@@ -39,6 +39,19 @@ public static class MilestoneServices
         });
 
     private static FQID _playbackFQID;
+    private static readonly object _lock = new object();
+    private static readonly Dictionary<Guid, MetadataLiveSource> _metadataSources = new Dictionary<Guid, MetadataLiveSource>();
+
+    private static readonly Channel<string> _channel =
+    Channel.CreateBounded<string>(new BoundedChannelOptions(1000)
+    {
+        SingleReader = true,
+        SingleWriter = false,
+        FullMode = BoundedChannelFullMode.DropOldest
+    });
+
+    private static readonly BlockingCollection<string> _queue =
+    new BlockingCollection<string>(new ConcurrentQueue<string>(), 500);
 
     public static void Initialize()
     {
@@ -147,31 +160,29 @@ public static class MilestoneServices
             if (!loginResult.Status)
                 return loginResult;
 
-            lock (_metadataLock)
+            lock (_lock)
             {
-                //if (_metadataLiveSource != null &&
-                //    _selectItem1?.FQID == param.MetadataId)
-                //{
-                //    // Đã init rồi → reuse
-                //    rs.Status = true;
-                //    return rs;
-                //}
-
-                // Close source cũ
-                if (_metadataLiveSource != null)
+                if (_metadataSources.TryGetValue(param.MetadataId, out var existingSource))
                 {
-                    _metadataLiveSource.LiveContentEvent -= OnLiveContentEvent;
-                    _metadataLiveSource.Close();
-                    _metadataLiveSource = null;
+                    rs.Status = true;
+                    return rs;
                 }
-                
-                _selectItem1 = VideoOS.Platform.Configuration.Instance
-                    .GetItem(param.MetadataId, Kind.Metadata);
 
-                _metadataLiveSource = new MetadataLiveSource(_selectItem1);
-                _metadataLiveSource.LiveModeStart = true;
-                _metadataLiveSource.Init();
-                _metadataLiveSource.LiveContentEvent += OnLiveContentEvent;
+                var item = VideoOS.Platform.Configuration.Instance.GetItem(param.MetadataId, Kind.Metadata);
+
+                if (item == null)
+                {
+                    rs.Status = false;
+                    rs.Message = "Metadata item not found";
+                    return rs;
+                }
+
+                var source = new MetadataLiveSource(item);
+                source.LiveModeStart = true;
+                source.Init();
+                source.LiveContentEvent += OnLiveContentEvent;
+
+                _metadataSources[param.MetadataId] = source;
             }
 
             rs.Status = true;
@@ -188,22 +199,28 @@ public static class MilestoneServices
 
     public static void OnLiveContentEvent(MetadataLiveSource sender, MetadataLiveContent e)
     {
-        if (e.Content == null) return;
+        if (e?.Content == null) return;
+        _queue.TryAdd(e.Content.GetMetadataString());
+    }
 
-        var metadataXml = e.Content.GetMetadataString();
-
-        _ = Task.Run(async () =>
+    public static Task StartSendWorker()
+    {
+        return Task.Run(async () =>
         {
-            try
+            foreach (var msg in _queue.GetConsumingEnumerable())
             {
-                await SendMetadataAsync(metadataXml);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Send metadata failed", ex);
+                try
+                {
+                    await SendMetadataAsync(msg);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Send metadata failed", ex);
+                }
             }
         });
     }
+
 
     public static async Task SendMetadataAsync(string metadata)
     {
@@ -220,5 +237,29 @@ public static class MilestoneServices
         response.EnsureSuccessStatusCode();
     }
 
-   
+    public static void StopMetadata(Guid metadataId)
+    {
+        lock (_lock)
+        {
+            if (_metadataSources.TryGetValue(metadataId, out var source))
+            {
+                source.LiveContentEvent -= OnLiveContentEvent;
+                source.Close();
+                _metadataSources.Remove(metadataId);
+            }
+        }
+    }
+    public static void StopAll()
+    {
+        lock (_lock)
+        {
+            foreach (var source in _metadataSources.Values)
+            {
+                source.LiveContentEvent -= OnLiveContentEvent;
+                source.Close();
+            }
+
+            _metadataSources.Clear();
+        }
+    }
 }

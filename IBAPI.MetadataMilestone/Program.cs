@@ -13,6 +13,7 @@ namespace IBAPI.MetadataMilestone
     {
         static void Main(string[] args)
         {
+
             string seftUrl = ConfigurationManager.AppSettings["SelfUrl"];
 
             var config = new HttpSelfHostConfiguration(seftUrl);
@@ -28,6 +29,11 @@ namespace IBAPI.MetadataMilestone
                 Console.WriteLine($"MIP SDK Service is running on {seftUrl} ...");
                 Console.ReadLine();
             }
+
+            //Khởi động worker
+            MilestoneServices.StartSendWorker();
+            ServiceStart.RegisterReceiveMetadataStart();
+
         }
     }
 }

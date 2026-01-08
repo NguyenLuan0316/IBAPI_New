@@ -12,7 +12,7 @@ namespace MipSdkService.Controllers
         private readonly string _bucketName = ConfigurationManager.AppSettings["MinIO:BucketName"];
 
         [HttpPost]
-        public IHttpActionResult GetMetadata([FromBody]MetadataInput param)
+        public IHttpActionResult RegisterReceiveMetadata([FromBody]MetadataInput param)
         {
             var rs = new ResponseModel { Status = false , Message = "Fail"}; 
             try

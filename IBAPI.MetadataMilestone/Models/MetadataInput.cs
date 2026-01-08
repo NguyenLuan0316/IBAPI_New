@@ -8,6 +8,5 @@ namespace IBAPI.ExecuteMilestone.Model
     public class MetadataInput
     {
         public Guid MetadataId { get; set; }
-        public Guid CameraId { get; set; }
     }
 }
