@@ -12,19 +12,16 @@ public static class ServiceStart
     {
         var rs = new ResponseModel { Status = false, Message = "Fail" };
 
-        var dt = DbContextConnection.ExecuteQuery(
-        "SELECT * FROM Users WHERE Age > @Age",
-        new SqlParameter("@Age", 18)
-        );
+        var dt = DbContextConnection.ExecuteQuery("SELECT * FROM Devices");
 
         List<Guid> metadataIds = new List<Guid>();
 
         foreach (DataRow row in dt.Rows)
         {
-            if (row["MetadataId"] == DBNull.Value)
+            if (row["MetadataMilestoneId"] == DBNull.Value)
                 continue;
 
-            var value = row["MetadataId"]?.ToString();
+            var value = row["MetadataMilestoneId"]?.ToString();
 
             if (!string.IsNullOrWhiteSpace(value))
                 metadataIds.Add(Guid.Parse(value));

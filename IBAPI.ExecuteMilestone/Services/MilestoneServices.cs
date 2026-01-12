@@ -108,11 +108,7 @@ public static class MilestoneServices
                     break;
 
                 case "MKV":
-                    var mkvExporter = new MKVExporter
-                    {
-                        Filename = MakeStringPathValid(param.FileName)
-                    };
-                    _exporter = mkvExporter;
+                    _exporter = new MKVExporter { Filename = MakeStringPathValid(param.FileName) };
                     typeFile = ".mkv";
                     break;
 

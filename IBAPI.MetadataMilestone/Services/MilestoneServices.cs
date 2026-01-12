@@ -237,17 +237,34 @@ public static class MilestoneServices
         response.EnsureSuccessStatusCode();
     }
 
-    public static void StopMetadata(Guid metadataId)
+    public static ResponseModel StopMetadata(Guid metadataId)
     {
-        lock (_lock)
+        var rs = new ResponseModel { Status = false, Message = "Fail" };
+
+        try
         {
-            if (_metadataSources.TryGetValue(metadataId, out var source))
+            lock (_lock)
             {
-                source.LiveContentEvent -= OnLiveContentEvent;
-                source.Close();
-                _metadataSources.Remove(metadataId);
+                if (_metadataSources.TryGetValue(metadataId, out var source))
+                {
+                    source.LiveContentEvent -= OnLiveContentEvent;
+                    source.Close();
+                    _metadataSources.Remove(metadataId);
+
+                    rs.Status = true;
+                    rs.Message = "Success";
+                    return rs;
+                }
+                return rs;
             }
         }
+        catch (Exception ex)
+        {
+            rs.Status = false;
+            rs.Message = ex.Message.ToString();
+            return rs;
+        }
+        
     }
     public static void StopAll()
     {
