@@ -55,7 +55,7 @@ public static class MilestoneServices
 
     public static async Task<ResponseModel> ExportCameraVideo(ExportVideoInfor param)
     {
-        var rs = new ResponseModel();
+        var rs = new ResponseModel{ Data = new ResponseModelData() };
         IExporter _exporter = null;
         var _cameraItems = new List<Item>();
         var fileName = "";
@@ -108,7 +108,9 @@ public static class MilestoneServices
                     break;
 
                 case "MKV":
-                    _exporter = new MKVExporter { Filename = MakeStringPathValid(param.FileName) };
+                    var mkvExporter = new MKVExporter { Filename = MakeStringPathValid(param.FileName) };
+                    _exporter = mkvExporter;
+                    fileName = mkvExporter.Filename;
                     typeFile = ".mkv";
                     break;
 
@@ -131,7 +133,6 @@ public static class MilestoneServices
 
                 if (_exporter.StartExport(dateStart.ToUniversalTime(), dateEnd.ToUniversalTime()))
                 {
-                    Console.WriteLine($"Path URL Export: {destPath}");
 
                     bool exportDone = false;
 
@@ -141,15 +142,13 @@ public static class MilestoneServices
 
                         int progress = _exporter.Progress;
                         int lastError = _exporter.LastError;
-
-                        Console.WriteLine($"Export progress: {progress}%, lastError: {lastError}");
                         
                         if (progress >= 100)
                         {
                             exportDone = true;
                             rs.Status = true;
                             rs.Message = "Success!";
-                            rs.UrlPath = _exporter.Path + "\\" + fileName + typeFile;
+                            rs.Data.UrlPath = _exporter.Path + "\\" + fileName + typeFile;
                         }
                     }
 

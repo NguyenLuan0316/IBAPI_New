@@ -6,8 +6,15 @@ namespace IBAPI.ExecuteMilestone.Model
     {
         public bool Status { get; set; }
         public string Message { get; set; }
-        public string UrlPath { get; set; }
+        public ResponseModelData Data { get; set; }
     }
+
+    public class ResponseModelData
+    {
+        public string UrlPath { get; set; }
+        public long Size { get; set; }
+    }
+
     public class ResponsePropertiesModel: ResponseModel
     {
         public double zoom { get; set; }

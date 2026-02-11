@@ -20,7 +20,7 @@ public static class MinIOServices
     public static async Task<FileMinIOResponseDto> BackgroundExportProcess(ResponseModel param)
     {
         var minio = new MinioManager();
-        var response = await minio.UploadAsync(param.UrlPath);
+        var response = await minio.UploadAsync(param.Data.UrlPath);
         return response;
     }
 }

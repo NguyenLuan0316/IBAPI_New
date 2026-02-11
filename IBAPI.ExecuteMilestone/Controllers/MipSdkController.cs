@@ -29,7 +29,8 @@ namespace MipSdkService.Controllers
                         {
                             rs.Status = true;
                             rs.Message = "Success";
-                            rs.UrlPath = "/" + _bucketName + "/" + result.FilePath;
+                            rs.Data.UrlPath = _bucketName + "/" + result.FilePath;
+                            rs.Data.Size = result.Size;
                         }
                     }
                     catch (Exception ex)
